@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=demo
+      - POSTGRES_PASSWORD=demo123
+      - POSTGRES_DB=demo
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d demo -U demo"]
+      interval: 1s
+      timeout: 1s
+      retries: 5
+
+
+  demo:
+    image: demo:naive
+    environment:
+      - DATASOURCES_DEFAULT_URL=jdbc:postgresql://postgres:5432/demo
+      - DATASOURCES_DEFAULT_USERNAME=demo
+      - DATASOURCES_DEFAULT_PASSWORD=demo123
+    ports:
+      - "8080:8080/tcp"
+    depends_on:
+      postgres:
+        condition: service_healthy
